@@ -10,7 +10,7 @@ version = re.search(
 
 
 with open("README.rst", "rb") as f:
-    long_descr = f.read().decode("utf-8")
+    long_description = f.read().decode("utf-8")
 
 
 setup(
@@ -21,7 +21,7 @@ setup(
         },
     version = version,
     description = "Python command line application for identifying matching keyframes acrosse different videos.",
-    long_description = long_descr,
+    long_description = long_description,
     author = "Patrick Currie",
     author_email = "pcurr303@gmail.com",
     url = "https://github.com/xsec76/matchvid",
