@@ -1,6 +1,7 @@
 import argparse
 import numpy
 from .keyframeops import KeyframeOps
+from .dwt2d import DWT2D
 
 def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
@@ -8,17 +9,20 @@ def main():
     parser.add_argument('--start', type=int, help='Start time of video in seconds.')
     parser.add_argument('--end', type=int, help='End time of video in seconds.')
     args = parser.parse_args() # need to add interval selection
-    primary_keyframe_list = KeyframeOps.get_keyframes(arg.videos[0])
+    # List of (keyframe, time in seconds) tuples
+    primary_keyframe_list = KeyframeOps.get_keyframes(args.videos[0])
     '''
-    Carry out wavelt transform on each frame
+    Carry out wavelet transform on each frame
     '''
+    primary_signature = DWT2D(primary_keyframe_list, 'bior1.3')
+    #print(primary_signature.approx_coefficient_list[10])
     for video in args.videos[1:]:
         secondary_keyframe_list = KeyframeOps.get_keyframes(video)
+        secondary_signature = DWT2D(secondary_keyframe_list, 'bior1.3')
         '''
         Carry out wavelet transform on each video
         Compare transfrom between primary and secondary videos
         Record locations of matching frames in time
         '''
-    '''
-    Print location of matches in time of secondary videos
-    '''
+        match_list = primary_signature.compare(secondary_signature)
+        #print(match_list)
