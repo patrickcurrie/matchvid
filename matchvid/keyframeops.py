@@ -1,26 +1,48 @@
 import numpy as np
 import cv2
+import math
 
 class KeyframeOps(object):
 
-    '''
-    The frames location in time must also be recorded
-    List should be of (keyfram, timestring) tuples
-    '''
+    # Returns list of keyframes in the given video
+    #
+    # List of keyframes is keyframe_list
+    #
+    # [(image_array, time_seconds), (image_array, time_seconds), ... ]
+    # -> List of keyframes representation
+    #
+    # Return keyframe_list
     @staticmethod
-    def get_keyframes(video_path):
+    def get_keyframes(video_path, nonzero_threshold, start_time=None, end_time=None):
         keyframe_list = []
-        p_frame_thresh = 300000 # This may need to be adjusted
+        frame_number = None
         video = cv2.VideoCapture(video_path)
-        video_fps = video.get(cv2.CAP_PROP_FPS) # Get the frame rate
-        success, previous_frame = video.read() # Read the first frame
-        frame_number = 1
-        while success:
-            success, current_frame = video.read() # -> Returns (boolean, image Array)
+        # Get the frame rate
+        video_fps = video.get(cv2.CAP_PROP_FPS)
+        # Set first and last frames to be read
+        if start_time:
+            start_frame = math.floor(video_fps * start_time)
+            video.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+            frame_number = start_frame
+        else:
+            frame_number = 1
+        if end_time:
+            end_frame = math.floor(video_fps * end_time)
+        else:
+            end_frame = video.get(cv2.CAP_PROP_FRAME_COUNT)
+        # Read the first frame
+        success, previous_frame = video.read()
+        # Read each frame
+        # Stop upon failure or last frame read
+        while success and frame_number <= end_frame:
+            # Returns (boolean, image Array)
+            success, current_frame = video.read()
             if success:
-                diff = cv2.absdiff(current_frame, previous_frame)
-                non_zero_count = np.count_nonzero(diff)
-                if non_zero_count > p_frame_thresh:
+                # Matrix subtraction
+                difference_array = cv2.absdiff(current_frame, previous_frame)
+                # Count nonzero elements
+                nonzero_count = np.count_nonzero(difference_array)
+                if nonzero_count > nonzero_threshold:
                     # Convert images to 8-Bit grayscale
                     image = cv2.cvtColor(previous_frame, cv2.COLOR_BGR2GRAY)
                     # Appends (keyframe, time of frame in seconds)
