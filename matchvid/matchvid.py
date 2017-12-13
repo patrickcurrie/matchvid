@@ -4,7 +4,7 @@ from .keyframeops import KeyframeOps
 from .dwt2d import DWT2D
 
 def main():
-    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser = argparse.ArgumentParser(description='A command-line tool for detecting matching keyframes across distinct videos, powered by discrete wavelet transform.')
     parser.add_argument('videos', type = str, nargs='+', help="First video is matched against other videos provided.")
     parser.add_argument('--start', type=int, help="Start time of primary video to match against in seconds.")
     parser.add_argument('--end', type=int, help="End time of primary video to match against in seconds.")
@@ -21,8 +21,26 @@ def main():
     primary_signature = DWT2D(primary_keyframe_list, args.filter, args.num_coeff)
     # Decompose each secondary video into a signature
     # Compare each secondary video signature to the primary vido signature
+    # Append matching frame results to match_list
+    match_list = []
     for video in args.videos[1:]:
         secondary_keyframe_list = KeyframeOps.get_keyframes(video, nonzero_threshold=args.keyframe_threshold)
         secondary_signature = DWT2D(secondary_keyframe_list, args.filter, args.num_coeff)
         # match_list holds frame matches
         match_list = primary_signature.compare(secondary_signature, args.match_threshold)
+    # [(x, y, (prime_coeff, prime_time), (second_coeff, second_time)), ...]
+    # [(x, y, (coefficient-time), (coefficient-time)), ...]
+    # -> frame-match representation
+    if len(match_list) != 0:
+        print("\n\nMatches found.\n")
+    else:
+        print("\n\nNo Matches found.")
+        return
+    for match in match_list:
+        # Primary time
+        primary_match_time = match[0][2][1]
+        # Secondary time
+        secondary_match_time = match[0][3][1]
+        print("Match: {} at {} s, {} at {} s".format(args.videos[0], primary_match_time, args.videos[1], secondary_match_time))
+    print("\n")
+    return

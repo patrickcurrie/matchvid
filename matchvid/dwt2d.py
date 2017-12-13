@@ -61,6 +61,4 @@ class DWT2D(object):
                 frame_matches = [(primary_x, primary_y, (primary_coeff, primary_frame[1]), (secondary_coeff, secondary_frame[1])) for (primary_x, primary_y, primary_coeff) in primary_frame[0] for (secondary_x, secondary_y, secondary_coeff) in secondary_frame[0] if ((primary_x==secondary_x) and (primary_y==secondary_y) and (primary_coeff==secondary_coeff))]
                 if len(frame_matches) != 0 and len(frame_matches) >= match_threshold:
                     match_list.append(frame_matches)
-                    print("\n\n")
-                    print(frame_matches)
         return match_list
