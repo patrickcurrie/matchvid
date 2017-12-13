@@ -4,6 +4,8 @@ include/
 pip-selfcheck.json
 pyvenv.cfg
 todo.txt
+matchvid/execution_testing.py
+test/
 
 
 # Byte-compiled / optimized / DLL files
